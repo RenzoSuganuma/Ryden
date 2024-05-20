@@ -10,41 +10,31 @@ public class Generator : MonoBehaviour
 
     void Start()
     {
-        _obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        _obj.transform.position = Vector3.zero;
-        _obj.transform.localScale = Vector3.one * 5;
+        _obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         _mesh = _obj.GetComponent<MeshFilter>().mesh;
 
-        var verts = _mesh.vertices;
-
-        for (int i = 0; i < verts.Length; i++)
+        Mesh nMesh = new Mesh();
+        Vector3[] verts = new[]
         {
-            var obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            var vpos = verts[i];
-            obj.transform.position = new Vector3(vpos.x * 5
-                , vpos.y * 5
-                , vpos.z * 5);
-            obj.transform.localScale = Vector3.one * .1f;
-            obj.name = $"vert:{i}";
-        }
-
-        var triangles = _mesh.GetTriangles(0);
-        foreach (var i in triangles)
+            new Vector3(0, 1, 0), // 0 :up
+            new Vector3(0, 0, 1), // 1 :forward
+            new Vector3(-1, 0, -1), // 2 :left behind
+            new Vector3(1, 0, -1) // 3 :right behind
+        };
+        int[] triangles = new[]
         {
-            Debug.Log($"{i}");
-        }
-
-        var ax = 0f;
-        var ay = 0f;
-        var az = 0f;
-
-        ax = verts.Sum(_ => _.x) / verts.Length;
-        ay = verts.Sum(_ => _.y) / verts.Length;
-        az = verts.Sum(_ => _.z) / verts.Length;
-
-        var o = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        o.transform.position = new Vector3(ax, ay, az);
-        o.transform.localScale = Vector3.one * .1f;
+            0, 3, 2, // backward
+            0, 1, 3, // right
+            0, 2, 1, // left
+            1, 2, 3, // below
+        };
+        
+        nMesh.SetVertices(verts);
+        nMesh.SetTriangles(triangles, 0);
+        nMesh.RecalculateNormals();
+        nMesh.RecalculateBounds();
+        nMesh.RecalculateTangents();
+        _obj.GetComponent<MeshFilter>().mesh = nMesh;
     }
 
     void Update()
