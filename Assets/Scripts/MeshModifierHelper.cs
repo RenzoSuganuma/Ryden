@@ -18,11 +18,11 @@ public class MeshModifierHelper : MonoBehaviour
 
         Debug.Log($"{FindMiddleXAxis(verts)} Count:{verts.Count}");
 
-        CutMesh(mesh, out var dmesh, 0, 2, 2);
+        DivideMesh(mesh, 0, 2, 2);
     }
 
     // 分割数に応じてメッシュをカットする
-    private void CutMesh(Mesh source, out Mesh dividedMesh, int submeshIndex, int divisionX, int divisionY)
+    private void DivideMesh(Mesh source, int submeshIndex, int divisionX, int divisionY)
     {
         // 上ベクトルを法線とし、z軸正の向きへ向かう平面
         // 横向きの面
@@ -31,9 +31,6 @@ public class MeshModifierHelper : MonoBehaviour
         // 右ベクトルを法線とし、z軸正の向きへ向かう平面
         // 縦向きの面
         Plane planeY = new Plane(Vector3.right, Vector3.forward);
-
-        // ひとまず初期化
-        dividedMesh = new Mesh();
 
         // 頂点群
         List<Vector3> verts = new List<Vector3>();
@@ -46,23 +43,17 @@ public class MeshModifierHelper : MonoBehaviour
         // 新しく求まった頂点群
         List<Vector3> newVerts = new List<Vector3>();
 
-        // 全頂点に対して平面の左右にあるかの処理をする
-        // 上下にあるかの判定
-        foreach (var vert in verts)
+        // 平面と頂点の1距離
+        float distance = -128f;
+
+        // 各三角形に対して処理
+        for (int i = 0; i < triangles.Count; i += 3)
         {
-            // ひとまず交差するかの判定
-            // 上半分
-            if (planeX.Raycast(new Ray(vert, (Vector3.down - vert).normalized), out var distance1))
-            {
-                
-            }
-            // 下半分
-            if (planeX.Raycast(new Ray(vert, (Vector3.up - vert).normalized), out var distance))
-            {
-                
-            }
+            
         }
     }
+    
+    #region いらなくなったメソッド
 
     // 辺を取得する
     /// <summary>
@@ -86,7 +77,7 @@ public class MeshModifierHelper : MonoBehaviour
             edges.Add(i);
         }
     }
-
+    
     // ｙ軸の中点 頂点の中で最も高い位置と最も低い位置のデータを参照している
     /// <summary>
     /// Y軸方向：メッシュの最低点と最高点の高さの線分の中点の高さを返す
@@ -147,6 +138,8 @@ public class MeshModifierHelper : MonoBehaviour
         return max + v;
     }
 
+    #endregion
+    
     void Update()
     {
     }
