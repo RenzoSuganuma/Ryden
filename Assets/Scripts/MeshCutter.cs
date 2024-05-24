@@ -2,14 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class MeshCutter : MonoBehaviour
 {
     [SerializeField] private GameObject _target;
     [SerializeField] private Material _material;
 
-    private MeshCuttedSide _leftSide = new MeshCuttedSide();
-    private MeshCuttedSide _rightSide = new MeshCuttedSide();
+    private MeshCuttedSide _leftSide;
+    private MeshCuttedSide _rightSide;
 
     private Plane _bladePlane;
     private Mesh _cutTargetMesh;
@@ -22,14 +23,16 @@ public class MeshCutter : MonoBehaviour
 
     private void Start()
     {
-        _leftSide.TargetMesh = _target.GetComponent<MeshFilter>().mesh;
-        _rightSide.TargetMesh = _target.GetComponent<MeshFilter>().mesh;
+        _leftSide = new MeshCuttedSide(_target.GetComponent<MeshFilter>().mesh);
+        _rightSide = new MeshCuttedSide(_target.GetComponent<MeshFilter>().mesh);
         var obj = Cut(_target, Vector3.zero, Vector3.forward, _material);
     }
 
     public List<GameObject> Cut(GameObject target, Vector3 anchorPoint, Vector3 normalDirection, Material capMaterial)
     {
-        _bladePlane = new Plane(Vector3.right, Vector3.forward);
+        _bladePlane = new Plane(
+            target.transform.InverseTransformDirection(-normalDirection),
+            target.transform.InverseTransformPoint(anchorPoint));
 
         _cutTargetMesh = _target.GetComponent<MeshFilter>().mesh;
 
@@ -50,7 +53,7 @@ public class MeshCutter : MonoBehaviour
             _leftSide.SubIndices.Add(new List<int>());
             _rightSide.SubIndices.Add(new List<int>());
 
-            for (int i = 0; i < indices.Length; ++i)
+            for (int i = 0; i < indices.Length; i += 3)
             {
                 p0 = indices[i];
                 p1 = indices[i + 1];
@@ -413,10 +416,9 @@ public class MeshCuttedSide
     public List<int> Triangles = new List<int>();
     public List<List<int>> SubIndices = new List<List<int>>();
 
-    public Mesh TargetMesh
+    public MeshCuttedSide(Mesh victimMesh)
     {
-        get { return _mesh; }
-        set { _mesh = value; }
+        _mesh = victimMesh;
     }
 
     private Mesh _mesh;
