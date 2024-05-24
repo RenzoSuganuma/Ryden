@@ -15,14 +15,32 @@ public class MeshModifierHelper : MonoBehaviour
 
         List<Vector3> verts = new List<Vector3>();
         mesh.GetVertices(verts);
-        
+
         Debug.Log($"{FindMiddleXAxis(verts)} Count:{verts.Count}");
+
+        CutMesh(mesh, out var dmesh, 2, 2);
     }
 
     // 分割数に応じてメッシュをカットする
     private void CutMesh(Mesh source, out Mesh dividedMesh, int divisionX, int divisionY)
     {
         dividedMesh = source;
+
+        // まず、上下分割機能を実装する
+        List<Vector3> verts = new List<Vector3>();
+        source.GetVertices(verts);
+        var middleHeight = FindMiddleYAxis(verts);
+
+        var filteredVertsUpHalf = verts.Where(v => v.y >= middleHeight).ToList();
+
+        foreach (var vector3 in filteredVertsUpHalf)
+        {
+            var obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            obj.transform.position = vector3;
+            obj.transform.localScale = Vector3.one * .1f;
+        }
+        
+        
     }
 
     // 辺を取得する
@@ -96,34 +114,6 @@ public class MeshModifierHelper : MonoBehaviour
 
         var v = (min - max) / 2f; // 最高点から中点へのベクトル = 最高点から最低点へのベクトル / 2
         return max + v;
-    }
-
-    private void MakePyramid()
-    {
-        var obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-
-        Mesh nMesh = new Mesh();
-        Vector3[] verts = new[]
-        {
-            new Vector3(0, 1, 0), // 0 :up
-            new Vector3(0, 0, 1), // 1 :forward
-            new Vector3(-1, 0, -1), // 2 :left behind
-            new Vector3(1, 0, -1) // 3 :right behind
-        };
-        int[] triangles = new[]
-        {
-            0, 3, 2, // backward
-            0, 1, 3, // right
-            0, 2, 1, // left
-            1, 2, 3, // below
-        };
-
-        nMesh.SetVertices(verts);
-        nMesh.SetTriangles(triangles, 0);
-        nMesh.RecalculateNormals();
-        nMesh.RecalculateBounds();
-        nMesh.RecalculateTangents();
-        obj.GetComponent<MeshFilter>().mesh = nMesh;
     }
 
     void Update()
