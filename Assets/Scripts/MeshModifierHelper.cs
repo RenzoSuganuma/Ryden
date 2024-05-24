@@ -43,13 +43,24 @@ public class MeshModifierHelper : MonoBehaviour
         List<int> triangles = new List<int>();
         source.GetTriangles(triangles, submeshIndex);
 
-        // 
-        var vertArray = verts.ToArray();
-        
+        // 新しく求まった頂点群
+        List<Vector3> newVerts = new List<Vector3>();
+
         // 全頂点に対して平面の左右にあるかの処理をする
-        foreach (var vert in vertArray)
+        // 上下にあるかの判定
+        foreach (var vert in verts)
         {
-            
+            // ひとまず交差するかの判定
+            // 上半分
+            if (planeX.Raycast(new Ray(vert, (Vector3.down - vert).normalized), out var distance1))
+            {
+                
+            }
+            // 下半分
+            if (planeX.Raycast(new Ray(vert, (Vector3.up - vert).normalized), out var distance))
+            {
+                
+            }
         }
     }
 
