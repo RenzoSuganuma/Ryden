@@ -18,43 +18,40 @@ public class MeshModifierHelper : MonoBehaviour
 
         Debug.Log($"{FindMiddleXAxis(verts)} Count:{verts.Count}");
 
-        CutMesh(mesh, out var dmesh, 2, 2);
+        CutMesh(mesh, out var dmesh, 0, 2, 2);
     }
 
     // 分割数に応じてメッシュをカットする
-    private void CutMesh(Mesh source, out Mesh dividedMesh, int divisionX, int divisionY)
+    private void CutMesh(Mesh source, out Mesh dividedMesh, int submeshIndex, int divisionX, int divisionY)
     {
-        dividedMesh = source;
+        // 上ベクトルを法線とし、z軸正の向きへ向かう平面
+        // 横向きの面
+        Plane planeX = new Plane(Vector3.up, Vector3.forward);
 
-        // まず、上下分割機能を実装する
+        // 右ベクトルを法線とし、z軸正の向きへ向かう平面
+        // 縦向きの面
+        Plane planeY = new Plane(Vector3.right, Vector3.forward);
+
+        // ひとまず初期化
+        dividedMesh = new Mesh();
+
+        // 頂点群
         List<Vector3> verts = new List<Vector3>();
         source.GetVertices(verts);
-        var middleHeight = FindMiddleYAxis(verts);
 
-        var filteredVertsUpHalf = verts.Where(v => v.y >= middleHeight).ToList();
+        // 三角形群
+        List<int> triangles = new List<int>();
+        source.GetTriangles(triangles, submeshIndex);
 
-        foreach (var vector3 in filteredVertsUpHalf)
+        // 
+        var vertArray = verts.ToArray();
+        
+        // 全頂点に対して平面の左右にあるかの処理をする
+        foreach (var vert in vertArray)
         {
-            var obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            obj.transform.position = vector3;
-            obj.transform.localScale = Vector3.one * .1f;
+            
         }
     }
-
-    /// <summary>
-    /// ２つの３次元ベクトルが交差しているかを判定する。
-    /// </summary>
-    /// <param name="pa">ベクトル１の始点</param>
-    /// <param name="pb">ベクトル１の終点</param>
-    /// <param name="pc">ベクトル２の始点</param>
-    /// <param name="pd">ベクトル２の終点</param>
-    // private bool IsCrossed(Vector3 pa, Vector3 pb, Vector3 pc, Vector3 pd)
-    // {
-    //     Vector3 vAB = pb - pa;
-    //     Vector3 vAC = pc - pa;
-    //     Vector3 vAD = pd - pa;
-    //     
-    // }
 
     // 辺を取得する
     /// <summary>
