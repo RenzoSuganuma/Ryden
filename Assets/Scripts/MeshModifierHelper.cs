@@ -39,11 +39,28 @@ public class MeshModifierHelper : MonoBehaviour
             obj.transform.position = vector3;
             obj.transform.localScale = Vector3.one * .1f;
         }
-        
-        
     }
 
+    /// <summary>
+    /// ２つの３次元ベクトルが交差しているかを判定する。
+    /// </summary>
+    /// <param name="pa">ベクトル１の始点</param>
+    /// <param name="pb">ベクトル１の終点</param>
+    /// <param name="pc">ベクトル２の始点</param>
+    /// <param name="pd">ベクトル２の終点</param>
+    // private bool IsCrossed(Vector3 pa, Vector3 pb, Vector3 pc, Vector3 pd)
+    // {
+    //     Vector3 vAB = pb - pa;
+    //     Vector3 vAC = pc - pa;
+    //     Vector3 vAD = pd - pa;
+    //     
+    // }
+
     // 辺を取得する
+    /// <summary>
+    /// 辺を取得する。{i, i + 1, i + 2, i + 3, ...} のように頂点のインデックスを格納している。
+    /// i, i + 1 でペアでその次の i + 2, i + 3がペアである。
+    /// </summary>
     private void GetEdges(List<int> edges, Mesh mesh)
     {
         var triangles = mesh.GetTriangles(0);
@@ -63,6 +80,9 @@ public class MeshModifierHelper : MonoBehaviour
     }
 
     // ｙ軸の中点 頂点の中で最も高い位置と最も低い位置のデータを参照している
+    /// <summary>
+    /// Y軸方向：メッシュの最低点と最高点の高さの線分の中点の高さを返す
+    /// </summary>
     private float FindMiddleYAxis(List<Vector3> verts)
     {
         float max, min;
@@ -90,6 +110,9 @@ public class MeshModifierHelper : MonoBehaviour
     }
 
     // ｘ軸の中点 頂点の中で最も高い位置と最も低い位置のデータを参照している
+    /// <summary>
+    /// X軸方向：メッシュの最低点【一番左】と最高点【一番右】の距離の線分の中点の高さを返す
+    /// </summary>
     private float FindMiddleXAxis(List<Vector3> verts)
     {
         float max, min;
