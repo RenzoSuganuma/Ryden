@@ -114,7 +114,6 @@ namespace BLINDED_AM_ME
                 uvs.Add(uvs3[p2]);
                 uvs.Add(uvs3[p3]);
             }
-
         }
 
         private static MeshCutSide left_side = new MeshCutSide();
