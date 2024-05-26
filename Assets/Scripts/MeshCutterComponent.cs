@@ -10,7 +10,9 @@ public class MeshCutterComponent : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-         _jack.CutMesh(_target, Vector3.zero, Vector3.right, _material);
+        var obj = _jack.CutMesh(_target, Vector3.zero, Vector3.right, _material);
+        _jack.CutMesh(obj[0], Vector3.zero, Vector3.up, _material);
+        _jack.CutMesh(obj[1], Vector3.zero, Vector3.up, _material);
     }
 
     // Update is called once per frame
