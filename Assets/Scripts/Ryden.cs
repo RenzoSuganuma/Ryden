@@ -106,13 +106,13 @@ public class CuttedMesh
 /// <summary>
 /// メッシュ切断機能を提供する
 /// </summary>
-public class Ryden
+public static class Ryden
 {
-    private CuttedMesh _leftCuttedMesh = new CuttedMesh();
-    private CuttedMesh _rightCuttedMesh = new CuttedMesh();
-    private Plane _blade;
-    private Mesh _victimMesh;
-    private List<Vector3> _newVertices = new List<Vector3>();
+    private static CuttedMesh _leftCuttedMesh = new CuttedMesh();
+    private static CuttedMesh _rightCuttedMesh = new CuttedMesh();
+    private static Plane _blade;
+    private static Mesh _victimMesh;
+    private static List<Vector3> _newVertices = new List<Vector3>();
 
     /// <summary>
     /// メッシュを切断し、切断されたメッシュを返す
@@ -122,7 +122,7 @@ public class Ryden
     /// <param name="normalDir">切断面の法線</param>
     /// <param name="capMat">切断面のマテリアル</param>
     /// <returns></returns>
-    public GameObject[] CutMesh(GameObject victim, Vector3 anchorPos, Vector3 normalDir, Material capMat)
+    public static GameObject[] CutMesh(GameObject victim, Vector3 anchorPos, Vector3 normalDir, Material capMat)
     {
         // 対象のローカル座標から平面を生成
         _blade = new Plane(
@@ -247,7 +247,7 @@ public class Ryden
         return new GameObject[] { leftObj, rightObj };
     }
 
-    private void CutThisFace(int subMesh, bool[] sides, int index0, int index1, int index2)
+    private static void CutThisFace(int subMesh, bool[] sides, int index0, int index1, int index2)
     {
         Vector3[] leftPoints = new Vector3[2];
         Vector3[] leftNormals = new Vector3[2];
@@ -381,10 +381,13 @@ public class Ryden
         );
     }
 
-    private List<Vector3> _capVertChecked = new List<Vector3>();
-    private List<Vector3> _capVertPolygon = new List<Vector3>();
+    private static List<Vector3> _capVertChecked = new List<Vector3>();
+    private static List<Vector3> _capVertPolygon = new List<Vector3>();
 
-    private void Capping()
+    /// <summary>
+    /// 切断処理で新たに生成された頂点に基づいてカット面の生成をする
+    /// </summary>
+    private static void Capping()
     {
         _capVertChecked.Clear();
 
@@ -439,9 +442,9 @@ public class Ryden
     /// 渡されたポリゴン配列の基づいてポリゴンの形成をする
     /// </summary>
     /// <param name="verts">ポリゴンの頂点リスト</param>
-    private void FillCap(List<Vector3> verts)
+    private static void FillCap(List<Vector3> verts)
     {
-        Vector3 center = Vector3.zero;  // 中心と各頂点を結んで三角形を形成するのでこれを定義
+        Vector3 center = Vector3.zero; // 中心と各頂点を結んで三角形を形成するのでこれを定義
 
         foreach (var vert in verts)
         {
