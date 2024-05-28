@@ -51,7 +51,7 @@ public class CuttedMesh
         Normals.Add(victimMesh.normals[p1]);
         Normals.Add(victimMesh.normals[p2]);
 
-        // UVもどう容易に取得
+        // UVも同様に取得
         UVs.Add(victimMesh.uv[p0]);
         UVs.Add(victimMesh.uv[p1]);
         UVs.Add(victimMesh.uv[p2]);
@@ -131,6 +131,7 @@ public class Ryden
         );
 
         _victimMesh = victim.GetComponent<MeshFilter>().mesh;
+        // 左右に分離したメッシュデータ、新しく追加した頂点群をクリア
         _newVertices.Clear();
         _leftCuttedMesh.ClearAll();
         _rightCuttedMesh.ClearAll();
@@ -144,6 +145,7 @@ public class Ryden
         {
             indices = _victimMesh.GetIndices(submesh);
 
+            // サブメッシュ１つ分のインデックスリスト
             _leftCuttedMesh.SubIndices.Add(new List<int>());
             _rightCuttedMesh.SubIndices.Add(new List<int>());
 
@@ -154,6 +156,7 @@ public class Ryden
                 p1 = indices[i + 1];
                 p2 = indices[i + 2];
 
+                // 頂点が平面の左右にあるか判定する。右にあるなら false
                 sides[0] = _blade.GetSide(_victimMesh.vertices[p0]);
                 sides[1] = _blade.GetSide(_victimMesh.vertices[p1]);
                 sides[2] = _blade.GetSide(_victimMesh.vertices[p2]);
@@ -257,81 +260,77 @@ public class Ryden
         bool settedLeft = false;
         bool settedRight = false;
 
-        int p = index0;
+        // トライアングルの頂点を配列として保持
+        int[] p = new[] { index0, index1, index2 };
 
         for (int side = 0; side < 3; side++)
         {
-            switch (side)
-            {
-                case 0:
-                    p = index0;
-                    break;
-                case 1:
-                    p = index1;
-                    break;
-                case 2:
-                    p = index2;
-                    break;
-            }
-
-            if (sides[side])
+            if (sides[side]) // 左側にある場合
             {
                 if (!settedLeft)
                 {
                     settedLeft = true;
 
-                    leftPoints[0] = _victimMesh.vertices[p];
-                    leftPoints[1] = leftPoints[0];
+                    // １，２番目の頂点共にひとまず同値で初期化
+                    // 1番目のデータは正しかったとしてもここで２番目のデータが正しいと確約していない
+                    leftPoints[1] = leftPoints[0] = _victimMesh.vertices[p[side]];
 
-                    leftUVs[0] = _victimMesh.uv[p];
-                    leftUVs[1] = leftUVs[0];
+                    leftUVs[1] = leftUVs[0] = _victimMesh.uv[p[side]];
 
-                    leftNormals[0] = _victimMesh.normals[p];
-                    leftNormals[1] = leftNormals[0];
+                    leftNormals[1] = leftNormals[0] = _victimMesh.normals[p[side]];
                 }
                 else
                 {
-                    leftPoints[1] = _victimMesh.vertices[p];
-                    leftUVs[1] = _victimMesh.uv[p];
-                    leftNormals[1] = _victimMesh.normals[p];
+                    // ２番目の頂点のデータをここで正しいとしているデータで初期化
+                    leftPoints[1] = _victimMesh.vertices[p[side]];
+                    leftUVs[1] = _victimMesh.uv[p[side]];
+                    leftNormals[1] = _victimMesh.normals[p[side]];
                 }
             }
+            // 右側にある場合
             else
             {
                 if (!settedRight)
                 {
                     settedRight = true;
 
-                    rightPoints[0] = _victimMesh.vertices[p];
-                    rightPoints[1] = rightPoints[0];
+                    // １，２番目の頂点共にひとまず同値で初期化
+                    // 1番目のデータは正しかったとしてもここで２番目のデータが正しいと確約していない
+                    rightPoints[1] = rightPoints[0] = _victimMesh.vertices[p[side]];
 
-                    rightUVs[0] = _victimMesh.uv[p];
-                    rightUVs[1] = rightUVs[0];
+                    rightUVs[1] = rightUVs[0] = _victimMesh.uv[p[side]];
 
-                    rightNormals[0] = _victimMesh.normals[p];
-                    rightNormals[1] = rightNormals[0];
+                    rightNormals[1] = rightNormals[0] = _victimMesh.normals[p[side]];
                 }
                 else
                 {
-                    rightPoints[1] = _victimMesh.vertices[p];
-                    rightUVs[1] = _victimMesh.uv[p];
-                    rightNormals[1] = _victimMesh.normals[p];
+                    // ２番目の頂点のデータをここで正しいとしているデータで初期化
+                    // ２番目の頂点のデータをここで正しいとしているデータで初期化
+                    rightPoints[1] = _victimMesh.vertices[p[side]];
+                    rightUVs[1] = _victimMesh.uv[p[side]];
+                    rightNormals[1] = _victimMesh.normals[p[side]];
                 }
             }
         }
 
+        // 距離比率の値。頂点と平面の距離 を 辺の長さで割った値
         float normalizedDistance = 0f;
+        // 距離。頂点と平面の距離
         float distance = 0f;
 
         // 左側
+        // 【すでに指定した平面と交差する点を探索する】
         _blade.Raycast(new Ray(leftPoints[0], (rightPoints[0] - leftPoints[0]).normalized), out distance);
 
+        // 距離比率を求める
         normalizedDistance = distance / (rightPoints[0] - leftPoints[0]).magnitude;
 
+        // 上記で比率が出たので辺の長さに比率を掛けてあげる
         Vector3 newVertex1 = Vector3.Lerp(leftPoints[0], rightPoints[0], normalizedDistance);
         Vector2 newUv1 = Vector2.Lerp(leftUVs[0], rightUVs[0], normalizedDistance);
         Vector3 newNormal1 = Vector3.Lerp(leftNormals[0], rightNormals[0], normalizedDistance);
 
+        // 新しく指定した頂点群に頂点を追加
         _newVertices.Add(newVertex1);
 
         // 右側
@@ -347,6 +346,7 @@ public class Ryden
 
         // トライアングル
         // 左側
+        // 【縮退三角形的に追加】
         _leftCuttedMesh.AddTriangle(
             new Vector3[] { leftPoints[0], newVertex1, newVertex2 },
             new Vector3[] { leftNormals[0], newNormal1, newNormal2 },
@@ -362,7 +362,7 @@ public class Ryden
             newNormal2,
             subMesh
         );
-        
+
         // 右側
         _rightCuttedMesh.AddTriangle(
             new Vector3[] { rightPoints[0], newVertex1, newVertex2 },
@@ -390,6 +390,7 @@ public class Ryden
 
         for (int i = 0; i < _newVertices.Count; i++)
         {
+            // 調査済みはとばす
             if (_capVertChecked.Contains(_newVertices[i]))
             {
                 continue;
@@ -407,12 +408,14 @@ public class Ryden
             while (!isDone)
             {
                 isDone = true;
-                
+
                 for (int k = 0; k < _newVertices.Count; k += 2)
                 {
+                    // 【新頂点のペアを探す】
                     if (_newVertices[k] == _capVertPolygon[_capVertPolygon.Count - 1] &&
                         !_capVertChecked.Contains(_newVertices[k + 1]))
                     {
+                        // ペアの頂点を見つけたらポリゴン配列へ追加、次のループを回す。
                         isDone = false;
                         _capVertPolygon.Add(_newVertices[k + 1]);
                         _capVertChecked.Add(_newVertices[k + 1]);
@@ -427,13 +430,18 @@ public class Ryden
                 }
             }
 
+            // ポリゴン形成
             FillCap(_capVertPolygon);
         }
     }
 
+    /// <summary>
+    /// 渡されたポリゴン配列の基づいてポリゴンの形成をする
+    /// </summary>
+    /// <param name="verts">ポリゴンの頂点リスト</param>
     private void FillCap(List<Vector3> verts)
     {
-        Vector3 center = Vector3.zero;
+        Vector3 center = Vector3.zero;  // 中心と各頂点を結んで三角形を形成するのでこれを定義
 
         foreach (var vert in verts)
         {
@@ -444,6 +452,7 @@ public class Ryden
 
         Vector3 upward = Vector3.zero;
 
+        // 90度回転。 平面の左側を上とする
         upward.x = _blade.normal.y;
         upward.y = -_blade.normal.x;
         upward.z = _blade.normal.z;
@@ -456,13 +465,16 @@ public class Ryden
 
         for (int i = 0; i < verts.Count; i++)
         {
+            // 中心からの頂点へのベクトル
             displacement = verts[i] - center;
 
+            // uv値をとる
             newUv1 = Vector3.zero;
             newUv1.x = .5f + Vector3.Dot(displacement, left);
             newUv1.y = .5f + Vector3.Dot(displacement, upward);
             newUv1.z = .5f + Vector3.Dot(displacement, _blade.normal);
 
+            // 最後の頂点は最初の頂点を利用するのでインデックスを循環させる
             displacement = verts[(i + 1) % verts.Count] - center;
 
             newUv2 = Vector3.zero;
@@ -490,6 +502,7 @@ public class Ryden
                     Vector2.one * .5f
                 },
                 -_blade.normal,
+                // カット面をサブメッシュとして登録
                 _leftCuttedMesh.SubIndices.Count - 1
             );
 
@@ -513,6 +526,7 @@ public class Ryden
                     Vector2.one * .5f
                 },
                 _blade.normal,
+                // カット面をサブメッシュとして登録
                 _rightCuttedMesh.SubIndices.Count - 1
             );
         }

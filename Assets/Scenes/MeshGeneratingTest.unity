@@ -258,7 +258,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!136 &426491930
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -717,7 +717,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1baebd29b9cd57f449c54d5548b8d111, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _target: {fileID: 0}
+  _target: {fileID: 426491929}
   _material: {fileID: 2100000, guid: e16d77858fb88a7408eb5b49495b8c1f, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
